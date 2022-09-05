@@ -4,4 +4,4 @@ create table expense(id integer primary key,
                      shop_name text,
                      remains integer,
                      created_at datetime,
-                     raw_text: text);
+                     raw_text text);

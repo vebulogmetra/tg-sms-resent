@@ -1,10 +1,9 @@
 import logging
-from venv import create
 from aiogram import Bot, Dispatcher, executor, types
 
 from permissions import AccessMiddleware
 from settings import BOT_TOKEN, ADMIN_ID
-from service import get_now_moscow_time
+import service as utils_service
 
 
 bot = Bot(token=BOT_TOKEN)
@@ -18,21 +17,30 @@ async def cmd_start(message: types.Message):
     await message.reply("Бот для приёма и парсинга смс сообщений пересланных приложением на андроид")
 
 
+@dp.message_handler(commands="list")
+async def cmd_start(message: types.Message):
+    await message.reply("Бот для приёма и парсинга смс сообщений пересланных приложением на андроид")
+
+
 @dp.message_handler()
 async def sms_text_message(message: types.Message):
-    now_time = get_now_moscow_time()
+    now_time = utils_service.get_now_moscow_time()
     if message.text.startswith("Покупка, карта *5489"):
         words_list = message.text.split(". ")
+        bank = "tinkoff"
         # ['Покупка, карта *5489', '179.98 RUB', 'PEREKRESTO', 'Доступно 1019.49 RUB']
-        db_data = {"bank": "tinkoff",
-                   "summ": words_list[1],
+        db_data = {"bank": bank,
+                   "summ": utils_service.only_summ(input_text=words_list[1]),
                    "shop_name": words_list[2],
-                   "remains": words_list[3],
-                   "created_at": now_time}
+                   "remains": utils_service.only_summ(input_text=words_list[3]),
+                   "created_at": now_time,
+                   "raw_text": message.text}
+        print(f'db_data: {db_data}')
+        utils_service.add_expense(db_data=db_data)
+        await message.answer(f"Расход добавлен. ({bank} - {words_list[2]})")
     await message.answer(message.text)
 
 
 
 if __name__ == "__main__":
-    # Запуск бота
     executor.start_polling(dp, skip_updates=True)
