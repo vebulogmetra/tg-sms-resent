@@ -1,4 +1,6 @@
 import logging
+from dateutil import parser as dtparser
+from datetime import datetime, timedelta
 from aiogram import Bot, Dispatcher, executor, types
 
 from permissions import AccessMiddleware
@@ -19,7 +21,21 @@ async def cmd_start(message: types.Message):
 
 @dp.message_handler(commands="list")
 async def cmd_start(message: types.Message):
-    await message.reply("Бот для приёма и парсинга смс сообщений пересланных приложением на андроид")
+    response_msgs: list[dict] = utils_service.get_expenses()
+    answer_message = ""
+    sum_all = 0
+    for msg in response_msgs:
+        #date_rus = datetime.strptime(, "%Y-%m-%d %H:%M:%S")
+        date_rus = dtparser.parse(msg.get('created_at'))
+        date_rus_str = date_rus.strftime("%Y-%m-%d %H:%M:%S")
+        answer_message += f"{msg.get('bank')}, {msg.get('shop_name')}, {msg.get('summ')}, {date_rus_str}\n"
+        sum_all += float(msg.get('summ'))
+    #now_time = utils_service.get_now_moscow_time()
+    # По дефолту результат за последние 3 дня
+    #target_date = now_time - timedelta(days=3)
+    await message.reply(answer_message)
+    sum_all = round(sum_all, 2)
+    await message.reply(f"Сумма: {sum_all}")
 
 
 @dp.message_handler()

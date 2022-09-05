@@ -2,7 +2,8 @@ import pytz
 import re
 from datetime import datetime
 
-from db import fetchall, insert
+from db import fetch_where, fetchall, insert
+from settings import EXPENSES_TABLE, EXPENSES_TABLE_COLUMNS
 
 
 def get_now_moscow_time():
@@ -15,9 +16,13 @@ def only_summ(input_text: str) -> str:
 
 
 def add_expense(db_data: dict):
-    insert(table="expense", column_values=db_data)
+    insert(table=EXPENSES_TABLE, column_values=db_data)
 
 
-def get_expenses(conditions: list[str] = None):
+def get_expenses(conditions: list[str] = None, limit: int = None):
     if not conditions:
-        result = fetchall(table="expense")
+        result = fetchall(table=EXPENSES_TABLE, columns=EXPENSES_TABLE_COLUMNS)
+    else:
+        print(f'condition_select: {conditions[0]}')
+        result = fetch_where(table=EXPENSES_TABLE, columns=EXPENSES_TABLE_COLUMNS, condition_select=conditions[0])
+    return result
