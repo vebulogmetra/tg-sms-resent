@@ -2,5 +2,7 @@ import dotenv
 import os
 
 
-dotenv.load_dotenv(".env")
+ENVFILE_PATH = os.path.join('.env')
+dotenv.load_dotenv(ENVFILE_PATH)
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
+ADMIN_ID = os.environ.get("ADMIN_ID")
