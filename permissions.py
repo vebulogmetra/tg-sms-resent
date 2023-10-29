@@ -11,5 +11,7 @@ class AccessMiddleware(BaseMiddleware):
 
     async def on_process_message(self, message: types.Message, _):
         if int(message.from_user.id) != int(self.access_id):
-            await message.answer("Извините, бот только для личного пользования. До свидания!")
+            await message.answer(
+                "Извините, бот только для личного пользования. До свидания!"
+            )
             raise CancelHandler()
